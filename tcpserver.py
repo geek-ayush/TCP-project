@@ -1,6 +1,8 @@
 import socket
 from datetime import datetime
+import threading
 
+log = open("Server.log","a+")
 
 class Server():
     def __init__(self):
@@ -10,44 +12,57 @@ class Server():
         self.Socket_Object.bind((self.HostName, self.Port))
 
     def Start(self):
-        self.Socket_Object.listen(5)   # at max 5 connections
-        print("Server Started at :#{}".format(datetime.now()))
-
+        self.Socket_Object.listen(1)  
+        print("{}  Server Started.".format(datetime.now()))
+        print("{}  Server Started".format(datetime.now()), file=log)
     def Close(self):
         self.Socket_Object.shutdown(2)  # 0:disallowRecv,1:disallowSend,2:both
         self.Socket_Object.close()
-        print("Server Closed at :#{}".format(datetime.now()))
-
+        print("{}  Server Closed.".format(datetime.now()))
+        print("{}  Server Closed.\n".format(datetime.now()),file=log)
 
 class Server_Connection():
-    def __init__(self):
-        self.buffersize = 128   # 1024 commonly used but for faster response
-
-    def Start_Connection(self, Server):
-        try:
-            self.time_start = datetime.now()
-            self.conn, self.Address = Server.Socket_Object.accept()
-            print("Server Connected to :", self.Address)
-            data_received = b''
-            while True:                
+    def __init__(self,Server):
+        self.conn, self.Address = Server.Socket_Object.accept()
+    def Start_Connection(self):
+        try:           
+            print("{}  Server Connected to :{}".format(datetime.now(), self.Address))
+            print("{}  Server Connected to :{}".format(datetime.now(), self.Address),file=log)
+            while True:
+                data_received = b''
                 data_received = self.conn.recv(128)
                 self.data_received = data_received.decode('ascii')
-                print("\n Recieved data : #{} at #{}".format(self.data_received,datetime.now()))
-                if self.data_received != (b"Q" or b"EXIT"):
-                    self.conn.send(b"Connection Closed Successfully !!")
+                print("\n{}  Recieved data : {} from {}".format(datetime.now(),self.data_received,self.Address))
+                print("{}  Recieved data : {} from {}".format(datetime.now(),self.data_received,self.Address),file=log)
+                if self.data_received == ("Q" or "EXIT" or "q" or "exit"):
+                    data_send = 'Connection Closed Successfully !!'
+                    self.conn.send(b'Connection Closed Successfully !!')
                     self.Close_Connection()
-                self.send(b"Server Recieved mssg")
+                else:
+                    data_send = "Server Recieved mssg"
+                    self.conn.send(b"Server Recieved mssg")
+                print("\n{}  Send data : {} from {}".format(datetime.now(), data_send, self.Address))
+                print("{} Send data : {} from {}".format(datetime.now(), data_send, self.Address), file=log)
         except:
             self.Close_Connection()
-            self.time_end = datetime.now()
-
+            
 
     def Close_Connection(self):
         self.conn.close()
-        print("Server Connection has been Closed.")
+        print("{}  Connection Closed from :{}".format(datetime.now(),self.Address))
+        print("{}  Connection Closed from :{}".format(datetime.now(),self.Address),file=log)
 
-
-s = Server()
-s.Start()
-st = Server_Connection()
-st.Start_Connection(s)
+def main():
+    try:
+        TCP = Server()
+        TCP.Start()
+        while True:
+            Client = Server_Connection(TCP)
+            Client_thread = threading.Thread(target = Client.Start_Connection,)
+            Client_thread.start()
+    except:
+        TCP.Close()
+        log.flush()
+        log.close()
+if __name__ == '__main__':
+    main()
