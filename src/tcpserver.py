@@ -6,10 +6,10 @@ import threading
 log = open("Server.log","a+")
 
 class Server():
-    def __init__(self):
+    def __init__(self,usr_port=123):
         self.Socket_Object = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HostName = socket.gethostname()
-        self.Port = 12345
+        self.Port = int(usr_port)
         self.Socket_Object.bind((self.HostName, self.Port))
 
     def Start(self):
@@ -53,17 +53,17 @@ class Server_Connection():
         print("{}  Connection Closed from :{}".format(datetime.now(),self.Address))
         print("{}  Connection Closed from :{}".format(datetime.now(),self.Address),file=log)
 
-def main():
-    try:
-        TCP = Server()
-        TCP.Start()
-        while True:
-            Client = Server_Connection(TCP)
-            Client_thread = threading.Thread(target = Client.Start_Connection,)
-            Client_thread.start()
-    except:
-        TCP.Close()
-        log.flush()
+class server_main():
+    def __init__(self,port):
+        TCP = Server(port)
+        try:
+            
+            TCP.Start()
+            while True:
+                Client = Server_Connection(TCP)
+                Client_thread = threading.Thread(target = Client.Start_Connection,)
+                Client_thread.start()
+        except:
+            TCP.Close()
+            log.flush()
         log.close()
-if __name__ == '__main__':
-    main()
