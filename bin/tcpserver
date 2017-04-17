@@ -1,1 +1,22 @@
+#! /usr/bin/python3
+import argparse
+import sys
 
+from src import tcpserver
+
+
+
+def user_arg(args=None):
+    parser = argparse.ArgumentParser(description='Script to learn basic argparse')
+    parser.add_argument('-p', '--port',
+                        help='port of the web server',
+                        default='123')
+
+    user_port= parser.parse_args(args)
+    return (user_port)
+
+if __name__ == '__main__':
+    port = vars(user_arg(sys.argv[1:]))
+    print(port)
+    tcpserver.server_main(int(port['port']))
+    
