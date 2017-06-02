@@ -14,4 +14,3 @@ or
 ```
     sudo tcpserver -p 132
 ```
-**Note :** Server.log file is created at the same location where the user gives terminal command at that point of time.
