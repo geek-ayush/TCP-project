@@ -23,6 +23,12 @@ def setup_logging(log_filename, log_level):
     file_log.setFormatter(log_format)
     logger.addHandler(file_log)
 
+    rotate_file_log = logging.handlers.RotatingFileHandler(
+        log_filename,
+        maxBytes=1024,
+        backupCount=5)
+    logger.addHandler(rotate_file_log)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Argument to be passed.')
