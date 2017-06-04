@@ -3,7 +3,7 @@ import socket
 import threading
 import logging
 
-# log = open("Server.log","a+")
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +29,10 @@ class Server_Connection():
         self.conn, self.Address = Server.Socket_Object.accept()
 
     def Start_Connection(self):
+        ''' Server is connected to client
+        and client can terminate the connection by sending
+        "q","Q","EXIT" or "exit".
+        Otherwise connection is not terminated by the server'''
         try:
             logger.info("Server Connected to :{}".format(self.Address))
             while True:
@@ -44,23 +48,24 @@ class Server_Connection():
                     data_send = "Server Recieved mssg"
                     self.conn.send(b"Server Recieved mssg")
                 logger.info("Send data : {} from {}".format(data_send, self.Address))
-        except:
+        except Exception as problem:
             self.Close_Connection()
+            logger.debug(problem)
     def Close_Connection(self):
         self.conn.close()
         logger.info("Connection Closed from :{}".format(self.Address))
 
 
 class server_main():
-    def __init__(self,port):
+    def __init__(self, port):
         TCP = Server(port)
         try:
-            
             TCP.Start()
             while True:
+                # Each Client is handled by seprate threads
                 Client = Server_Connection(TCP)
                 Client_thread = threading.Thread(target=Client.Start_Connection)
                 Client_thread.start()
-        except:
+        except Exception as problem_main:
             TCP.Close()
-
+            logger.debug(problem_main)
