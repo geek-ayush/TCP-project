@@ -49,8 +49,11 @@ class Server_Connection():
                     self.conn.send(b"Server Recieved mssg")
                 logger.info("Send data : {} from {}".format(data_send, self.Address))
         except Exception as problem:
-            self.Close_Connection()
             logger.debug(problem)
+        except KeyboardInterrupt:
+            logger.warn("Inetrrupted by Keyboard")
+        finally:
+            self.Close_Connection()
     def Close_Connection(self):
         self.conn.close()
         logger.info("Connection Closed from :{}".format(self.Address))
@@ -67,5 +70,10 @@ class server_main():
                 Client_thread = threading.Thread(target=Client.Start_Connection)
                 Client_thread.start()
         except Exception as problem_main:
-            TCP.Close()
             logger.debug(problem_main)
+        except KeyboardInterrupt :
+            logger.warn("Interrupted by Keyboard")
+        except SystemExit :
+            logger.info("System Exit")
+        finally:
+            TCP.Close()
