@@ -15,8 +15,12 @@ or
     sudo tcpserver -p 132 -d -l file.log
 ```
 # Uninstall the server
-Runthe command
+Run the command
 ```
     sudo python3 setup.py instal --record files.txt
     cat files.txt |xargs rm -rf
 ````
+or
+```
+    sudo sh uninstall.sh
+```
